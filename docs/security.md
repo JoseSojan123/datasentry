@@ -15,7 +15,13 @@ Please report a vulnerability privately to the repository owner rather than in a
   - Only an HMAC-SHA256 of the key, keyed with `SECRET_KEY`, is stored.
   - The full key is shown once, when it is created.
   - Keys can be revoked and can have an expiry date.
-- **Login, registration and the demo endpoint** are rate-limited (20 requests per minute per client by default).
+- **Rate limits:**
+  - Login, registration and the demo endpoint allow 20 requests per minute per client address. These limits
+    ignore credential headers, so changing tokens does not reset them.
+  - Every other API route allows 300 requests per minute per client.
+  - Uploads and prediction logging have tighter limits.
+  - Client addresses come from `X-Forwarded-For` only when `TRUSTED_PROXY_HOPS` is set, because otherwise that
+    header can be spoofed.
 
 ## Authorisation
 

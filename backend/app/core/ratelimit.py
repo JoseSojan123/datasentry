@@ -43,9 +43,17 @@ limiter = SlidingWindowLimiter()
 
 
 def client_ip(request: Request) -> str:
+    """Client address for rate limiting and audit.
+
+    X-Forwarded-For is client-controlled except for the entries appended by our own proxies, so it is
+    only used when TRUSTED_PROXY_HOPS > 0, taking the entry that many hops from the right.
+    """
+    hops = get_settings().trusted_proxy_hops
     fwd = request.headers.get("x-forwarded-for")
-    if fwd:
-        return fwd.split(",")[0].strip()
+    if hops > 0 and fwd:
+        parts = [p.strip() for p in fwd.split(",") if p.strip()]
+        if parts:
+            return parts[-min(hops, len(parts))]
     return request.client.host if request.client else "unknown"
 
 
@@ -59,7 +67,9 @@ def rate_limit(bucket: str):
             "predictions": s.rate_limit_predictions_per_min,
             "auth": s.rate_limit_auth_per_min,
         }.get(bucket, s.rate_limit_default_per_min)
-        auth = request.headers.get("authorization", "")[-16:] or request.headers.get("x-api-key", "")[:12]
+        # Sign-in endpoints are keyed by address only: the credential headers there are attacker-chosen.
+        auth = "" if bucket == "auth" else (
+            request.headers.get("authorization", "")[-16:] or request.headers.get("x-api-key", "")[:12])
         ok, retry = limiter.hit(f"{bucket}:{client_ip(request)}:{auth}", limit)
         if not ok:
             raise HTTPException(429, f"Rate limit exceeded for {bucket} requests; retry in {int(retry) + 1}s.",

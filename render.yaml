@@ -1,0 +1,33 @@
+# Render Blueprint: one free Docker web service. The database is external (e.g. Neon free Postgres),
+# because Render's free Postgres is deleted 30 days after creation. See docs/deployment.md.
+services:
+  - type: web
+    name: datasentry
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: RUN_MIGRATIONS
+        value: "true"
+      - key: STORAGE_BACKEND
+        value: database
+      - key: MAX_UPLOAD_MB
+        value: "10"
+      - key: SCHEDULER_MODE
+        value: external
+      - key: CRON_SECRET
+        generateValue: true
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: MAX_DEMO_WORKSPACES
+        value: "50"

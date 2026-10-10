@@ -7,7 +7,7 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -15,6 +15,7 @@ from app.api.v1 import auth, datasets, incidents, lineage, models, ops, rules
 from app.core.config import get_settings
 from app.core.errors import install_handlers
 from app.core.logging import configure_logging
+from app.core.ratelimit import rate_limit
 
 log = logging.getLogger("datasentry.api")
 API_PREFIX = "/api/v1"
@@ -81,7 +82,7 @@ def create_app() -> FastAPI:
         return response
 
     for r in (auth.router, datasets.router, rules.router, models.router, lineage.router, incidents.router, ops.router):
-        app.include_router(r, prefix=API_PREFIX)
+        app.include_router(r, prefix=API_PREFIX, dependencies=[Depends(rate_limit("default"))])
     app.add_api_route("/health", ops.health, include_in_schema=False)
 
     static = Path(settings.static_dir) if settings.static_dir else None

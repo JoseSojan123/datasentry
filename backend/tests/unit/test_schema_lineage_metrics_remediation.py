@@ -230,3 +230,19 @@ def test_missing_value_policy_limits_and_strategies():
         missing_value_policy(df, "c", "mean", max_affected_pct=50)
     out, rep = missing_value_policy(df, "v", "drop_rows", max_affected_pct=25)
     assert len(out) == 4 and rep["rows_after"] == 4
+
+
+def test_client_ip_ignores_forwarded_for_unless_proxies_are_trusted(monkeypatch):
+    from types import SimpleNamespace
+
+    from app.core import config
+    from app.core.ratelimit import client_ip
+
+    req = SimpleNamespace(headers={"x-forwarded-for": "6.6.6.6, 203.0.113.9"}, client=SimpleNamespace(host="10.0.0.2"))
+    monkeypatch.setenv("TRUSTED_PROXY_HOPS", "0")
+    config.get_settings.cache_clear()
+    assert client_ip(req) == "10.0.0.2"
+    monkeypatch.setenv("TRUSTED_PROXY_HOPS", "1")
+    config.get_settings.cache_clear()
+    assert client_ip(req) == "203.0.113.9"
+    config.get_settings.cache_clear()

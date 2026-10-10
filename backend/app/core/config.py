@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     access_token_ttl_minutes: int = 12 * 60
 
     cors_origins: str = "http://localhost:5173,http://localhost:8080"
+    # Number of reverse proxies in front of the API that append to X-Forwarded-For (0 = ignore the header).
+    trusted_proxy_hops: int = Field(0, ge=0, le=5)
 
     static_dir: str | None = None
 

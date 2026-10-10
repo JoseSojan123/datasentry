@@ -59,18 +59,23 @@ const LineageNodeView = memo(function LineageNodeView({ data }: NodeProps<Node<N
       </div>
       <div className="relative min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="truncate text-base font-medium text-fg" title={node.name}>
+          <span className="truncate text-base font-medium text-fg" title={`${node.name} (${T.label.toLowerCase()})`}>
             {node.name}
           </span>
         </div>
-        <div className="mt-0.5 flex items-center gap-1.5 text-2xs text-faint">
-          <span className="uppercase tracking-[0.06em]">{T.label}</span>
-          <span aria-hidden>·</span>
-          <span className={cn(node.criticality === "critical" ? "text-crit" : node.criticality === "high" ? "text-warn" : "")}>{node.criticality}</span>
+        <div className="mt-0.5 flex min-w-0 items-center gap-1.5 whitespace-nowrap text-2xs text-faint">
+          {/* In investigation the icon carries the node type, leaving room for criticality and impact. */}
+          {!affected && (
+            <>
+              <span className="min-w-0 truncate uppercase tracking-[0.06em]">{T.label}</span>
+              <span aria-hidden>·</span>
+            </>
+          )}
+          <span className={cn("shrink-0", node.criticality === "critical" ? "text-crit" : node.criticality === "high" ? "text-warn" : "")}>{node.criticality}</span>
           {mode === "investigation" && affected && (
             <>
               <span aria-hidden>·</span>
-              <span className={cn(contained ? "text-ok" : confirmed ? "text-crit" : "text-warn")}>{contained ? "protected" : node.impact}</span>
+              <span className={cn("shrink-0", contained ? "text-ok" : confirmed ? "text-crit" : "text-warn")}>{contained ? "protected" : node.impact}</span>
             </>
           )}
         </div>
