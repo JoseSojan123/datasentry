@@ -1,0 +1,19 @@
+[project]
+name = "datasentry"
+version = "0.1.0"
+description = "Python SDK for the DataSentry data-quality and ML-monitoring API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["httpx>=0.27"]
+
+[project.optional-dependencies]
+pandas = ["pandas>=2.0"]
+dev = ["pytest>=8", "pandas>=2.0"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["datasentry*"]
