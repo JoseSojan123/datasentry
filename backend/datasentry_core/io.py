@@ -126,8 +126,8 @@ def ensure_utf8(path: Path, encoding: str = "utf-8") -> Path:
         return path
     out = path.with_suffix(".utf8.csv")
     with path.open("r", encoding="latin-1") as src, out.open("w", encoding="utf-8") as dst:
-        while chunk := src.read(1 << 20):
-            dst.write(chunk)
+        while text := src.read(1 << 20):
+            dst.write(text)
     return out
 
 
@@ -152,9 +152,13 @@ def validate_column_names(names: list[str]) -> list[str]:
     return cleaned
 
 
+# Files are read from server-side storage paths only; never let DuckDB fetch or load extensions.
+_DUCKDB_CONFIG: dict[str, Any] = {"autoinstall_known_extensions": False, "autoload_known_extensions": False}
+
+
 def read_csv(path: Path, encoding: str = "utf-8", max_rows: int | None = None) -> tuple[pd.DataFrame, ParseReport]:
     src = ensure_utf8(path, encoding)
-    con = duckdb.connect(":memory:")
+    con = duckdb.connect(":memory:", config=_DUCKDB_CONFIG)
     try:
         try:
             rel = con.execute(
@@ -191,7 +195,7 @@ def read_csv(path: Path, encoding: str = "utf-8", max_rows: int | None = None) -
 
 def read_parquet(path: Path, max_rows: int | None = None) -> tuple[pd.DataFrame, ParseReport]:
     try:
-        con = duckdb.connect(":memory:")
+        con = duckdb.connect(":memory:", config=_DUCKDB_CONFIG)
         n = con.execute("SELECT count(*) FROM read_parquet(?)", [str(path)]).fetchone()[0]  # type: ignore[index]
         if max_rows is not None and n > max_rows:
             raise IngestionError(

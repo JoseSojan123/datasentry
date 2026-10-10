@@ -20,9 +20,10 @@ os.environ["RATE_LIMIT_AUTH_PER_MIN"] = "1000"
 
 @pytest.fixture(scope="session")
 def app_client():
-    from alembic import command
     from alembic.config import Config
     from fastapi.testclient import TestClient
+
+    from alembic import command
 
     cfg = Config(str(BACKEND / "alembic.ini"))
     cfg.set_main_option("script_location", str(BACKEND / "alembic"))

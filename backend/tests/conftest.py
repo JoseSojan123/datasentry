@@ -17,9 +17,10 @@ os.environ["SECRET_KEY"] = "test-secret-key-0123456789-abcdefghijkl"
 
 @pytest.fixture(scope="session")
 def migrated():
-    from alembic import command
     from alembic.config import Config
     from sqlalchemy import create_engine, text
+
+    from alembic import command
 
     url = os.environ["DATABASE_URL"]
     eng = create_engine(url)

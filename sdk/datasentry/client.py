@@ -10,7 +10,17 @@ from typing import Any
 
 import httpx
 
-from .types import Dataset, DriftResult, Incident, Model, ModelEvaluation, MonitoringResult, Profile, ValidationResult, Version
+from .types import (
+    Dataset,
+    DriftResult,
+    Incident,
+    Model,
+    ModelEvaluation,
+    MonitoringResult,
+    Profile,
+    ValidationResult,
+    Version,
+)
 
 DEFAULT_TIMEOUT = 120.0
 PREDICTION_BATCH = 5000

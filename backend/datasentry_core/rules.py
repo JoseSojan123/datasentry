@@ -42,6 +42,8 @@ DATASET_LEVEL = {"freshness", "row_count", "schema"}
 SAMPLE_LIMIT = 5
 MAX_REGEX_LENGTH = 300
 _NESTED_QUANTIFIER = re.compile(r"\((?:[^()\\]|\\.)*[+*](?:[^()\\]|\\.)*\)\s*[+*{]")
+# A repeated group with alternatives, e.g. (a|aa)+, can also backtrack exponentially when branches overlap.
+_QUANTIFIED_ALTERNATION = re.compile(r"\((?:[^()\\]|\\.)*\|(?:[^()\\]|\\.)*\)\s*[+*{]")
 
 
 class _Base(BaseModel):
@@ -85,6 +87,8 @@ class RegexConfig(_Base):
     def _safe_pattern(cls, v: str) -> str:
         if _NESTED_QUANTIFIER.search(v):
             raise ValueError("nested quantifiers such as (a+)+ are not allowed (catastrophic backtracking risk)")
+        if _QUANTIFIED_ALTERNATION.search(v):
+            raise ValueError("repeated alternations such as (a|aa)+ are not allowed (catastrophic backtracking risk)")
         if re.search(r"\\\d", v):
             raise ValueError("backreferences are not allowed")
         try:
@@ -257,7 +261,7 @@ def _row_result(
     if failed and ctx.store_samples:
         idx = mask_failed[mask_failed].index[:SAMPLE_LIMIT]
         for i in idx:
-            row = {"row": int(i)}
+            row: dict[str, Any] = {"row": int(i)}
             for c in columns:
                 if c in df.columns:
                     v = df.at[i, c]
@@ -329,7 +333,8 @@ def evaluate_condition(df: pd.DataFrame, cond: Any) -> pd.Series:
         res = _compare(s, cond.op, other)
         valid = s.notna() & other.notna()
     else:
-        other = cond.value
+        value: Any = cond.value
+        other = value
         if isinstance(other, int | float) and not isinstance(other, bool):
             s = pd.to_numeric(s, errors="coerce")
         res = _compare(s, cond.op, other)

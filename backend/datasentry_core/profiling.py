@@ -22,7 +22,7 @@ import math
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -169,7 +169,7 @@ def profile_datetime(series: pd.Series, cfg: ProfileConfig, as_of: datetime) -> 
         "gap_count": int(len(gaps)),
         "largest_gap_seconds": _f(gaps.max()) if len(gaps) else None,
         "freshness_seconds": _f((as_of_naive - vmax).total_seconds()),
-        "by_day": {str(k.date()): int(v) for k, v in values.dt.floor("D").value_counts().sort_index().tail(120).items()},
+        "by_day": {str(pd.Timestamp(cast(Any, k)).date()): int(v) for k, v in values.dt.floor("D").value_counts().sort_index().tail(120).items()},
     }
 
 

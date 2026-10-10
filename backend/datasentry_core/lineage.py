@@ -188,8 +188,8 @@ def impact_of(graph: Graph, source_ids: list[int]) -> dict[str, Any]:
             "impact": "confirmed" if info["confirmed"] else "potential",
         })
     by_type: dict[str, int] = {}
-    for n in nodes:
-        by_type[n["type"]] = by_type.get(n["type"], 0) + 1
+    for item in nodes:
+        by_type[item["type"]] = by_type.get(item["type"], 0) + 1
     return {
         "sources": source_ids,
         "affected": nodes,

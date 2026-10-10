@@ -78,6 +78,8 @@ class Settings(BaseSettings):
             problems.append("SECRET_KEY must be set to a random value in production")
         if self.is_production and "*" in self.cors_origin_list:
             problems.append("CORS_ORIGINS must list explicit origins in production")
+        if self.is_production and self.scheduler_mode == "external" and len(self.cron_secret or "") < 24:
+            problems.append("CRON_SECRET must be at least 24 characters when SCHEDULER_MODE=external")
         return problems
 
 

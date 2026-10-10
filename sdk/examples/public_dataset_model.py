@@ -15,14 +15,13 @@ CC BY 4.0), so no download is needed. The script:
 """
 from datetime import UTC, datetime, timedelta
 
+from datasentry import DataSentry
 from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-
-from datasentry import DataSentry
 
 FEATURES = ["mean radius", "mean texture", "mean smoothness", "mean compactness", "mean concavity", "worst area"]
 

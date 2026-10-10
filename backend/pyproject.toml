@@ -55,5 +55,6 @@ ignore = ["B008", "E501"]
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
 check_untyped_defs = false
 packages = ["datasentry_core"]

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import math
 import time
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
@@ -167,7 +168,7 @@ def adjust_pvalues(pvalues: list[float | None], method: str) -> list[float | Non
     return out
 
 
-def chi_square_homogeneity(ref_counts: dict[str, int], cur_counts: dict[str, int]) -> dict[str, Any]:
+def chi_square_homogeneity(ref_counts: Mapping[Any, int], cur_counts: Mapping[Any, int]) -> dict[str, Any]:
     """Chi-square test of homogeneity with Cochran's rule.
 
     Categories whose expected count is below 5 in either sample are pooled into ``__other__``; if
@@ -282,16 +283,16 @@ def _categorical_feature(
             f"at least {cfg.min_samples} are required on each side."
         )
         return fd, None
-    rc = ref.value_counts().to_dict()
-    cc = cur.value_counts().to_dict()
+    rc: dict[Any, int] = ref.value_counts().to_dict()
+    cc: dict[Any, int] = cur.value_counts().to_dict()
     cats = sorted(set(rc) | set(cc), key=lambda c: -(rc.get(c, 0) + cc.get(c, 0)))
     rv = np.array([rc.get(c, 0) for c in cats], dtype=float)
     cv = np.array([cc.get(c, 0) for c in cats], dtype=float)
     js = js_distance(rv, cv, cfg.smoothing)
     psi = psi_from_counts(rv, cv, cfg.smoothing)
     chi = chi_square_homogeneity(rc, cc)
-    new_cats = sorted(set(cc) - set(rc))
-    gone = sorted(set(rc) - set(cc))
+    new_cats = sorted(set(cc) - set(rc), key=str)
+    gone = sorted(set(rc) - set(cc), key=str)
     fd.statistics = {
         "js_distance": round(js, 6),
         "psi": round(psi, 6),
@@ -497,12 +498,12 @@ def evaluate_drift(
                                      "distribution comparison is not meaningful."})
     added = [c for c in current.columns if c not in reference.columns]
     removed = [c for c in reference.columns if c not in current.columns]
-    for c in removed:
-        other.append({"feature": c, "kind": "column_removed", "severity": "critical",
-                      "explanation": f"Column '{c}' exists in the reference but not in the current data."})
-    for c in added:
-        other.append({"feature": c, "kind": "column_added", "severity": "info",
-                      "explanation": f"Column '{c}' is new in the current data."})
+    for col in removed:
+        other.append({"feature": col, "kind": "column_removed", "severity": "critical",
+                      "explanation": f"Column '{col}' exists in the reference but not in the current data."})
+    for col in added:
+        other.append({"feature": col, "kind": "column_added", "severity": "info",
+                      "explanation": f"Column '{col}' is new in the current data."})
     drifted = [f for f in features if f.status == "drift"]
     severities = [f.severity for f in drifted] + [o["severity"] for o in other]
     overall: Severity = max(severities, key=lambda s: SEVERITY_ORDER[s], default="none")  # type: ignore[arg-type]

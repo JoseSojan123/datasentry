@@ -6,7 +6,6 @@
 """
 import numpy as np
 import pandas as pd
-
 from datasentry import DataSentry
 
 rng = np.random.default_rng(0)  # SYNTHETIC example data

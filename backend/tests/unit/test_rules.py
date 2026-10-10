@@ -76,10 +76,15 @@ def test_regex(df):
     assert r.status == "fail" and r.failed_rows == 1 and r.rows_evaluated == 4
 
 
-@pytest.mark.parametrize("pattern", ["(a+)+", "(\\w*)*$", "(.)\\1"])
+@pytest.mark.parametrize("pattern", ["(a+)+", "(\\w*)*$", "(.)\\1", "(a|aa)+", "(x|y){2,}"])
 def test_regex_rejects_dangerous_patterns(pattern):
     with pytest.raises(ValueError):
         validate_rule("regex", ["x"], {"pattern": pattern})
+
+
+@pytest.mark.parametrize("pattern", ["(USD|EUR|GBP)", "[A-Z]{3}", r"[^@\s]+@[^@\s]+\.[a-z]{2,}"])
+def test_regex_accepts_ordinary_patterns(pattern):
+    validate_rule("regex", ["x"], {"pattern": pattern})
 
 
 def test_referential_integrity(df):

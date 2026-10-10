@@ -96,7 +96,6 @@ def frame():
         "c": ["a", "a", "b", "b", "a", "z"],
         "t": ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-03", "2026-01-09", "2026-01-10"],
     })
-    df, schema, _ = (None, None, None)
     from datasentry_core.io import normalize_frame
 
     schema = infer_schema(raw)

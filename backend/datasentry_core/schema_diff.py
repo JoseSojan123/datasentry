@@ -150,10 +150,10 @@ def compare_versions(
 
     pairs = [(n, n) for n in bcols if n in tcols] + list(confirmed.items())
     for bn, tn in pairs:
-        b, t = bcols[bn], tcols[tn]
-        if b["semantic_type"] != t["semantic_type"]:
-            add("type_changed", tn, f"'{tn}' changed type from {b['semantic_type']} to {t['semantic_type']}.",
-                before=b["semantic_type"], after=t["semantic_type"])
+        bc, tc = bcols[bn], tcols[tn]
+        if bc["semantic_type"] != tc["semantic_type"]:
+            add("type_changed", tn, f"'{tn}' changed type from {bc['semantic_type']} to {tc['semantic_type']}.",
+                before=bc["semantic_type"], after=tc["semantic_type"])
         bp, tp = bprof.get(bn, {}), tprof.get(tn, {})
         if bp and tp:
             delta = tp.get("missing_pct", 0) - bp.get("missing_pct", 0)
@@ -163,7 +163,7 @@ def compare_versions(
             elif delta >= cfg.null_pct_warning_pp:
                 add("null_pct_increase", tn, f"Nulls in '{tn}' rose from {bp['missing_pct']:.1f}% to {tp['missing_pct']:.1f}%.",
                     before=bp["missing_pct"], after=tp["missing_pct"])
-            if b["semantic_type"] == t["semantic_type"] == "categorical" and bp.get("frequencies") is not None:
+            if bc["semantic_type"] == tc["semantic_type"] == "categorical" and bp.get("frequencies") is not None:
                 bset, tset = set(bp.get("frequencies", {})), set(tp.get("frequencies", {}))
                 new, gone = sorted(tset - bset), sorted(bset - tset)
                 if new and not bp.get("frequencies_truncated"):

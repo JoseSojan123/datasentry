@@ -1,8 +1,8 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
-
 from datasentry import DataSentryError
+
 from datasentry_core import synthetic as syn
 
 NOW = datetime.now(UTC).replace(tzinfo=None)
