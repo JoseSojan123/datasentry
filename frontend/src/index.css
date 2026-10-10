@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  [data-theme="dark"] {
+    --bg: 9 11 16;
+    --surface: 15 18 25;
+    --raised: 21 25 34;
+    --overlay: 28 33 44;
+    --border: 36 42 55;
+    --border-strong: 54 62 79;
+    --text: 231 234 241;
+    --muted: 152 161 179;
+    --faint: 106 115 134;
+    --accent: 139 125 255;
+    --accent-fg: 14 11 34;
+    --crit: 244 88 96;
+    --warn: 242 167 50;
+    --info: 96 160 255;
+    --ok: 56 200 128;
+    --ref: 120 132 158;
+    --shadow: 0 0 0;
+    color-scheme: dark;
+  }
+  [data-theme="light"] {
+    --bg: 245 246 249;
+    --surface: 255 255 255;
+    --raised: 250 251 253;
+    --overlay: 239 241 246;
+    --border: 225 228 236;
+    --border-strong: 200 205 216;
+    --text: 17 20 28;
+    --muted: 82 91 110;
+    --faint: 124 132 150;
+    --accent: 96 78 232;
+    --accent-fg: 255 255 255;
+    --crit: 206 44 56;
+    --warn: 178 106 0;
+    --info: 30 104 224;
+    --ok: 20 138 80;
+    --ref: 128 138 160;
+    --shadow: 30 35 50;
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-base text-fg antialiased;
+    font-feature-settings: "ss01", "tnum" 0;
+  }
+  .tabular,
+  td,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Grid items default to min-width:auto, which lets long content push past the viewport. */
+  .grid > * {
+    min-width: 0;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--border-strong)) transparent;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-lg border border-line bg-surface shadow-panel;
+  }
+  .label {
+    @apply text-2xs font-medium uppercase tracking-[0.08em] text-faint;
+  }
+  .kbd {
+    @apply inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm border border-line bg-raised px-1 font-mono text-2xs text-muted;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgb(var(--border) / 0.45) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--border) / 0.45) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .link {
+    @apply text-accent underline-offset-2 hover:underline;
+  }
+}
+
+/* React Flow theming */
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-edge-stroke: rgb(var(--border-strong));
+  --xy-controls-button-background-color: rgb(var(--raised));
+  --xy-controls-button-background-color-hover: rgb(var(--overlay));
+  --xy-controls-button-color: rgb(var(--muted));
+  --xy-controls-button-border-color: rgb(var(--border));
+  --xy-minimap-background-color: rgb(var(--surface));
+}
+.react-flow__attribution {
+  background: transparent !important;
+  color: rgb(var(--faint)) !important;
+}
+.react-flow__attribution a {
+  color: rgb(var(--faint)) !important;
+}
+.react-flow__controls {
+  box-shadow: none !important;
+  border: 1px solid rgb(var(--border));
+  border-radius: 6px;
+  overflow: hidden;
+}
+.react-flow__controls-button {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}

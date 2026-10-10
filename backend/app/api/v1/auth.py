@@ -84,7 +84,8 @@ def login(body: LoginIn, db: DB, request: Request) -> dict[str, Any]:
 
 @router.post("/auth/demo", status_code=201, dependencies=[Depends(rate_limit("auth"))],
              summary="Create an isolated, expiring demo workspace (optionally with synthetic sample data)")
-def demo(body: DemoIn, db: DB, request: Request) -> dict[str, Any]:
+def demo(db: DB, request: Request, body: DemoIn | None = None) -> dict[str, Any]:
+    body = body or DemoIn()
     s = get_settings()
     if not s.demo_mode_enabled:
         raise APIError(403, "demo_disabled", "Demo mode is disabled on this deployment.")
