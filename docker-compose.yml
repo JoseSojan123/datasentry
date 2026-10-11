@@ -60,8 +60,12 @@ services:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-datasentry}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-datasentry}
       STORAGE_DIR: /data/storage
       SCHEDULER_MODE: worker
+    # The image's HTTP healthcheck does not apply to the worker; check that its process is alive instead.
     healthcheck:
-      disable: true
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
     depends_on:
       migrate:
         condition: service_completed_successfully
